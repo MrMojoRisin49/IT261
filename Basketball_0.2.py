@@ -145,7 +145,7 @@ class Team:
         return self.__teamId
 
     def incrementScore(self, score):
-        self.__score = score
+        self.__score += score
 
 #Defines the Player class
 class Player:
