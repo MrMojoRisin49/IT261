@@ -93,9 +93,9 @@ class Game:
 
             #Awards score to the proper team
             if (team == 1):
-                self.__homeTeam.setScore(score)
+                self.__homeTeam.incrementScore(score)
             else:
-                self.__awayTeam.setScore(score)
+                self.__awayTeam.incrementScore(score)
 
             #Asks user to if they wish to enter another score    
             choice = str(input('\nScore recorded. Enter another? (y/n): '))
