@@ -28,10 +28,9 @@ def menu(gameObj):
     
     #Menu descision structure
     if x == 1:
-        print('You selected "Score a game"')
         gameObj.score()
     elif x == 2:
-        print('You selected "View team data"')
+        gameObj.viewScore()
     elif x == 3:
         return gameObj.nextQuarter();
     elif x == 4:
@@ -72,17 +71,12 @@ class Game:
 
     # Logic for incrementing team scores
     def score(self):
-
         repeat = True
 
         while(repeat):
 
             os.system('cls')
             #os.system('clear')
-
-            #Retrieves teams
-            home = self.__homeTeam
-            away = self.__awayTeam
 
             #Displays menu and accepts user score and team who scored. 
             print('\n-----Scoring-----\n')
@@ -99,9 +93,9 @@ class Game:
 
             #Awards score to the proper team
             if (team == 1):
-                home.setScore(score)
+                self.__homeTeam.setScore(score)
             else:
-                away.setScore(score)
+                self.__awayTeam.setScore(score)
 
             #Asks user to if they wish to enter another score    
             choice = str(input('\nScore recorded. Enter another? (y/n): '))
@@ -116,6 +110,18 @@ class Game:
                 repeat = False
 
         menu(gameObj)
+
+    #Displays team scores for now. Will later display both team and individual player scores/stats
+    def viewScore(self):
+        os.system('cls')
+        
+        print('\n-----Scores-----\n')
+        print('\t' + self.__homeTeam.getTeamName() + ': ' + str(self.__homeTeam.getScore()) + '\n')
+        print('\t' + self.__awayTeam.getTeamName() + ': ' + str(self.__awayTeam.getScore()) + '\n')
+
+        #Pauses the system
+        input('Press any key to continue...')
+
     
     def endGame(self):
         print("Game ended.");
