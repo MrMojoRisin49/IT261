@@ -144,7 +144,7 @@ class Team:
     def getId(self):
         return self.__teamId
 
-    def setScore(self, score):
+    def incrementScore(self, score):
         self.__score = score
 
 #Defines the Player class
