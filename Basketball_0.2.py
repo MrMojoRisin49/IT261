@@ -17,7 +17,7 @@ def menu(gameObj):
 
     print('\t1. Insert score\n')
     print('\t2. View team data\n')
-    print('\t3. Next quarter\n')
+    print('\t3. Next quarter (cur: '+str(gameObj.getQuarter())+')\n')
     print('\t4. Exit\n')
 
     x = int(input('Please select an option: '))
@@ -48,8 +48,8 @@ class Game:
                             # here so that custom player numbers may
                             # later be added (currently 1,2,...,12)
         
-        self.__homeTeam = Team(homeTeam, 49721);
-        self.__awayTeam = Team(awayTeam, 88716);
+        self.__homeTeam = Team(homeTeam, 1);
+        self.__awayTeam = Team(awayTeam, 2);
         
         # Setup home team
         for i in range(1,12):
@@ -57,7 +57,7 @@ class Game:
         
         # Setup away team
         for i in range(13,24):
-            self.__players[i] = Player(i, self.__awayTeam.getId)
+            self.__players[i] = Player(i, self.__awayTeam.getId())
         
     
     # Increment the quarter
@@ -68,6 +68,9 @@ class Game:
             return False
         
         return True
+    
+    def getQuarter(self):
+        return self.__currentQuarter
 
     # Logic for incrementing team scores
     def score(self):
@@ -86,10 +89,30 @@ class Game:
             while ((score > 3) | (score < 1)): #Input validation for score
                 score = int(input("Please enter a valid score: "))
 
-            team = int(input('\nWho scored? Bulls(1) or Lakers(2): '))
+            team = int(input('\nWhich team scored? Bulls(1) or Lakers(2): '))
 
             while ((team > 2) | (team < 1)): #Input validation for team
                team = int(input('\nPlease enter a valid team. Bulls(1) or Lakers(2): '))
+            
+            # Ask for which player scored, and list players
+            if(team == 1):
+                teamPlayers = self.__homeTeam.getPlayers(self.__players)
+            else:
+                teamPlayers = self.__awayTeam.getPlayers(self.__players)
+            
+            playersString = "";
+            playersList = [];
+            for i in teamPlayers:
+                playersString += " " + str(teamPlayers[i].getPlayerId())
+                playersList.append(teamPlayers[i].getPlayerId());
+            
+            player = int(input('\nWhich player scored (players:'+playersString+')? '))
+            
+            while player not in playersList: #Input validation
+                player = int(input('\nPlease enter a valid choice (players:'+playersString+'): '))
+            
+            # Award points to player
+            self.__players[player].addScore(score)
 
             #Awards score to the proper team
             if (team == 1):
@@ -112,19 +135,40 @@ class Game:
         menu(gameObj)
 
     #Displays team scores for now. Will later display both team and individual player scores/stats
-    def viewScore(self):
+    def viewScore(self, gameEnd):
         os.system('cls')
+        if(gameEnd):
+             print('\n-----Final Scores-----\n')
+        else:
+            print('\n-----Scores-----\n')
+        print(self.__homeTeam.getTeamName() + ': ' + str(self.__homeTeam.getScore()) + '\t' + self.__awayTeam.getTeamName() + ': ' + str(self.__awayTeam.getScore()) + '\n' )
         
-        print('\n-----Scores-----\n')
-        print('\t' + self.__homeTeam.getTeamName() + ': ' + str(self.__homeTeam.getScore()) + '\n')
-        print('\t' + self.__awayTeam.getTeamName() + ': ' + str(self.__awayTeam.getScore()) + '\n')
+        if(gameEnd):
+            if(self.__homeTeam.getScore() > self.__awayTeam.getScore()):
+                print(self.__homeTeam.getTeamName() + " win!");
+            elif(self.__homeTeam.getScore() < self.__awayTeam.getScore()):
+                print(self.__awayTeam.getTeamName() + " win!");
+            else:
+                print("The game ended in a tie");
+        
+        print('\n-----Player Data-----\n')
+        
+        print('Team\tPlayer\tTwo\tThree\tFree\tTotal')
+        
+        for playerId in self.__players:
+            cPlayer = self.__players[playerId]
+            if(cPlayer.getTeam() == 1):
+                team = "Bulls"
+            else:
+                team = "Lakers"
+            print(team+"\t"+str(cPlayer.getPlayerId())+"\t"+str(cPlayer.getTwoPoint())+"\t"+str(cPlayer.getThreePoint())+"\t"+str(cPlayer.getFreeThrows())+"\t"+str(cPlayer.getTotalScore()))
 
         #Pauses the system
-        input('Press any key to continue...')
+        input('Press <enter> to continue...')
 
     
     def endGame(self):
-        print("Game ended.");
+        self.viewScore(True)
 
 
 #Defines the Team class    
@@ -146,6 +190,15 @@ class Team:
 
     def incrementScore(self, score):
         self.__score += score
+    
+    def getPlayers(self, playerDict):
+        returnDict = {}
+        for i in playerDict:
+            if playerDict[i].getTeam() == self.__teamId:
+                returnDict[i] = playerDict[i]
+        
+        return returnDict
+                
 
 #Defines the Player class
 class Player:
@@ -156,6 +209,7 @@ class Player:
         self.__threePoint = 0
         self.__twoPoint = 0
         self.__freeThrows = 0
+        self.__totalScore = 0
 
     def getPlayerId(self):
         return self.__playerId
@@ -168,18 +222,24 @@ class Player:
 
     def getFreeThrows(self):
         return self.__freeThrows
+        
+    def getTotalScore(self):
+        return self.__totalScore
 
     def getTeam(self):
         return self.__team
-
-    def setThreePoint(self, threePoint):
-        self.__threePoint += threePoint
-
-    def setTwoPoint(self, twoPoint):
-        self.__twoPoint += twoPoint
-
-    def setFreeThrows(self, freeThrows):
-        self.__freeThrows += freeThrows 
+        
+    def addScore(self, score):
+        if(score == 1):
+            self.__freeThrows += 1
+        elif(score == 2):
+            self.__twoPoint += 1
+        elif(score == 3):
+            self.__threePoint += 1
+        
+        self.__totalScore += score
+        
+        
 
         
 #Main method. Checks to see if file is being run as itself or called by another python module
