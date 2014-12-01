@@ -30,7 +30,7 @@ def menu(gameObj):
     if x == 1:
         gameObj.score()
     elif x == 2:
-        gameObj.viewScore()
+        gameObj.viewScore(False)
     elif x == 3:
         return gameObj.nextQuarter();
     elif x == 4:
